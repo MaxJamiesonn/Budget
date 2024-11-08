@@ -170,6 +170,7 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
         calculateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 calculateTotalIncome();
+                calculateTotalSpending();
                 
             }
         });
@@ -193,12 +194,10 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
         double wages = getTextFieldValue(wagesField);
         double loans = getTextFieldValue(loansField);
         double Investments = getTextFieldValue(InvestmentsField);
-        double food = getTextFieldValue(foodField);
-        double rent = getTextFieldValue(rentField);
-        double insurance = getTextFieldValue(insuranceField);
+
 
         // clear total field and return if any value is NaN (error)
-        if (Double.isNaN(wages) || Double.isNaN(loans)) {
+        if (Double.isNaN(wages) || Double.isNaN(loans) || Double.isNaN(Investments)) {
             totalIncomeField.setText("");  // clear total income field
             wages = 0.0;
             return wages;   // exit method and do nothing
@@ -207,10 +206,31 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
         // otherwise calculate total income and update text field
         double totalIncome = wages + loans + Investments;
         totalIncomeField.setText(String.format("%.2f",totalIncome));  // format with 2 digits after the .
-        double totalSpending = food + rent + insurance;
-        totalSpendingField.setText(String.format("%.2f",totalSpending));
         return totalIncome;
         
+
+    }
+
+    public double calculateTotalSpending(){
+
+          // get values from income text fields.  valie is NaN if an error occurs
+          double food = getTextFieldValue(foodField);
+          double rent = getTextFieldValue(rentField);
+          double insurance = getTextFieldValue(insuranceField);
+  
+          // clear total field and return if any value is NaN (error)
+          if (Double.isNaN(food) || Double.isNaN(rent) || Double.isNaN(insurance)){
+              totalSpendingField.setText("");  // clear total income field
+              rent = 0.0;
+              return rent;   // exit method and do nothing
+          }
+  
+          // otherwise calculate total income and update text field
+          double totalSpending = food + rent + insurance;
+          totalSpendingField.setText(String.format("%.2f",totalSpending));  // format with 2 digits after the .
+          return totalSpending;
+          
+         
 
     }
 
