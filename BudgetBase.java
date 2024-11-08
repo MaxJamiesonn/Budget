@@ -159,6 +159,7 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
           totalDifferenceField.setHorizontalAlignment(JTextField.RIGHT) ;    // number is at right end of field
           totalDifferenceField.setEditable(false);    // user cannot directly edit this field (ie, it is read-only)
           addComponent(totalDifferenceField, 5, 1);
+          totalDifferenceField.setBackground(Color.BLUE);
     }
 
     // set up listeners
