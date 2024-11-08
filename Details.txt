@@ -8,8 +8,8 @@ Functionality and marking are as described below.
 Basic system (30 pts)
 DONE• 10 pts: user enters three (or more) income fields (wages, loan, other) and the system
 computes total income when a Calculate button is pressed.
-• 10 pts: user enters three (or more) spending fields (food, rent, other) and the system
-computes total income when a Calculate button is pressed.
+DONE• 10 pts: user enters three (or more) spending fields (food, rent, other) and the system
+computes total spending when a Calculate button is pressed.
 • 5 pts: When Calculate is pressed, the system also shows surplus/deficit (income minus
 spending). This is black if positive or zero, and red if negative.
 • 5 pts: System checks user input (numbers for validity), and produces an appropriate error

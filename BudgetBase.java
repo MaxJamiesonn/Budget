@@ -37,6 +37,7 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
     private JTextField rentField;
     private JTextField insuranceField;
     private JTextField totalSpendingField;
+    private JTextField totalDifferenceField;
 
     // constructor - create UI  (dont need to change this)
     public BudgetBase(JFrame frame) {
@@ -94,11 +95,11 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
 
         // Row 4 - Calculate Button
         calculateButton = new JButton("Calculate");
-        addComponent(calculateButton, 5, 0);  
+        addComponent(calculateButton, 6, 0);  
 
         // Row 5 - Exit Button
         exitButton = new JButton("Exit");
-        addComponent(exitButton, 6, 0);  
+        addComponent(exitButton, 7, 0);  
 
         // set up  listeners (in a spearate method)
         initListeners();
@@ -146,13 +147,18 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
          totalSpendingField.setEditable(false);    // user cannot directly edit this field (ie, it is read-only)
          addComponent(totalSpendingField, 4, 3);  
  
-         // Row 4 - Calculate Button
-         calculateButton = new JButton("Calculate");
-         addComponent(calculateButton, 5, 0);  
- 
-         // Row 5 - Exit Button
-         exitButton = new JButton("Exit");
-         addComponent(exitButton, 6, 0);  
+
+
+         JLabel totalDifferenceLabel = new JLabel("Total Difference");
+         addComponent (totalDifferenceLabel,5,0);
+
+
+
+          // set up text box for displaying totalDifference
+          totalDifferenceField = new JTextField("0", 10);   // 0 initially, with 10 columns
+          totalDifferenceField.setHorizontalAlignment(JTextField.RIGHT) ;    // number is at right end of field
+          totalDifferenceField.setEditable(false);    // user cannot directly edit this field (ie, it is read-only)
+          addComponent(totalDifferenceField, 5, 1);
     }
 
     // set up listeners
@@ -171,6 +177,7 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
             public void actionPerformed(ActionEvent e) {
                 calculateTotalIncome();
                 calculateTotalSpending();
+                calculateTotalDifference();
                 
             }
         });
@@ -230,7 +237,18 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
           totalSpendingField.setText(String.format("%.2f",totalSpending));  // format with 2 digits after the .
           return totalSpending;
           
+          
          
+
+    }
+
+    public double calculateTotalDifference(){
+        double totalIncome = getTextFieldValue(totalIncomeField);
+        double totalSpending = getTextFieldValue(totalSpendingField);
+
+      double totalDifference = totalIncome - totalSpending;
+      totalDifferenceField.setText(String.format("%.2f",totalDifference)); 
+      return totalDifference;
 
     }
 
