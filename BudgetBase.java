@@ -159,7 +159,7 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
           totalDifferenceField.setHorizontalAlignment(JTextField.RIGHT) ;    // number is at right end of field
           totalDifferenceField.setEditable(false);    // user cannot directly edit this field (ie, it is read-only)
           addComponent(totalDifferenceField, 5, 1);
-          totalDifferenceField.setBackground(Color.BLUE);
+       
     }
 
     // set up listeners
@@ -207,6 +207,7 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
         // clear total field and return if any value is NaN (error)
         if (Double.isNaN(wages) || Double.isNaN(loans) || Double.isNaN(Investments)) {
             totalIncomeField.setText("");  // clear total income field
+            totalDifferenceField.setText("");
             wages = 0.0;
             return wages;   // exit method and do nothing
         }
@@ -229,6 +230,7 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
           // clear total field and return if any value is NaN (error)
           if (Double.isNaN(food) || Double.isNaN(rent) || Double.isNaN(insurance)){
               totalSpendingField.setText("");  // clear total income field
+              totalDifferenceField.setText("");
               rent = 0.0;
               return rent;   // exit method and do nothing
           }
@@ -247,8 +249,16 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
         double totalIncome = getTextFieldValue(totalIncomeField);
         double totalSpending = getTextFieldValue(totalSpendingField);
 
+
+
+
+        
+
       double totalDifference = totalIncome - totalSpending;
       totalDifferenceField.setText(String.format("%.2f",totalDifference)); 
+
+      if (totalDifference <0){
+      totalDifferenceField.setForeground(Color.RED);}
       return totalDifference;
 
     }
@@ -265,14 +275,22 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
             return 0;
         }
 
-        else {  // if text field is not blank, parse it into a double
+         else {  // if text field is not blank, parse it into a double
             try {
-                return Double.parseDouble(fieldString);  // parse field number into a double
-             } catch (java.lang.NumberFormatException ex) {  // catch invalid number exception
+                double value = Double.parseDouble(fieldString);  // parse field number into a double
+                if(value <0){
+                    JOptionPane.showMessageDialog(topLevelFrame,"Please enter a Non negative number");
+                    
+                    return Double.NaN;
+                }
+                return value;
+             } 
+             catch (java.lang.NumberFormatException ex) {  // catch invalid number exception
                 JOptionPane.showMessageDialog(topLevelFrame, "Please enter a valid number");  // show error message
-                return Double.NaN;  // return NaN to show that field is not a number
+                return Double.NaN;  // return NaN to show that field is not a number  
             }
-        }
+        
+            }
     }
 
 
