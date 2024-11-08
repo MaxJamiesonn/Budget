@@ -248,6 +248,9 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
     public double calculateTotalDifference(){
         double totalIncome = getTextFieldValue(totalIncomeField);
         double totalSpending = getTextFieldValue(totalSpendingField);
+        if ( Double.isNaN(totalIncomeField) || Double.IsNaN(totalSpendingField)){
+            totalDifferenceField.setText("");
+        }
 
 
 
