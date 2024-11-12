@@ -246,10 +246,22 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
     }
 
     public double calculateTotalDifference(){
+        double food = getTextFieldValue(foodField);
+        double rent = getTextFieldValue(rentField);
+        double insurance = getTextFieldValue(insuranceField);
+        double wages = getTextFieldValue(wagesField);
+        double loans = getTextFieldValue(loansField);
+        double Investments = getTextFieldValue(InvestmentsField);
         double totalIncome = getTextFieldValue(totalIncomeField);
         double totalSpending = getTextFieldValue(totalSpendingField);
-        if ( Double.isNaN(totalIncomeField) || Double.IsNaN(totalSpendingField)){
+         if ( Double.isNaN(food) ||Double.isNaN(rent) ||Double.isNaN(insurance) ||Double.isNaN(wages) ||Double.isNaN(loans) ||Double.isNaN(Investments)){
             totalDifferenceField.setText("");
+         double notreal = 0;
+            System.out.println("Test");
+            return notreal;
+         
+
+           
         }
 
 
