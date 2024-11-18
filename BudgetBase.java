@@ -206,8 +206,8 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
 
         // clear total field and return if any value is NaN (error)
         if (Double.isNaN(wages) || Double.isNaN(loans) || Double.isNaN(Investments)) {
-            totalIncomeField.setText("");  // clear total income field
-            totalDifferenceField.setText("");
+            totalIncomeField.setText("0");  // clear total income field
+            totalDifferenceField.setText("0");
             wages = 0.0;
             return wages;   // exit method and do nothing
         }
@@ -229,8 +229,8 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
   
           // clear total field and return if any value is NaN (error)
           if (Double.isNaN(food) || Double.isNaN(rent) || Double.isNaN(insurance)){
-              totalSpendingField.setText("");  // clear total income field
-              totalDifferenceField.setText("");
+              totalSpendingField.setText("0");  // clear total income field
+              totalDifferenceField.setText("0");
               rent = 0.0;
               return rent;   // exit method and do nothing
           }
@@ -246,16 +246,11 @@ public class BudgetBase extends JPanel {    // based on Swing JPanel
     }
 
     public double calculateTotalDifference(){
-        double food = getTextFieldValue(foodField);
-        double rent = getTextFieldValue(rentField);
-        double insurance = getTextFieldValue(insuranceField);
-        double wages = getTextFieldValue(wagesField);
-        double loans = getTextFieldValue(loansField);
-        double Investments = getTextFieldValue(InvestmentsField);
         double totalIncome = getTextFieldValue(totalIncomeField);
         double totalSpending = getTextFieldValue(totalSpendingField);
-         if ( Double.isNaN(food) ||Double.isNaN(rent) ||Double.isNaN(insurance) ||Double.isNaN(wages) ||Double.isNaN(loans) ||Double.isNaN(Investments)){
-            totalDifferenceField.setText("");
+
+         if (totalIncome == "0" || totalSpending =="0"){
+            totalDifferenceField.setText("0");
          double notreal = 0;
             System.out.println("Test");
             return notreal;
