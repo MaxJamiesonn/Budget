@@ -12,6 +12,7 @@ DONE• 10 pts: user enters three (or more) spending fields (food, rent, other) 
 computes total spending when a Calculate button is pressed.
 DONE• 5 pts: When Calculate is pressed, the system also shows surplus/deficit (income minus
 spending). This is black if positive or zero, and red if negative.
+
 DONE• 5 pts: System checks user input (numbers for validity), and produces an appropriate error
 message if input is not valid. Empty fields are treated as 0 (no error message)
 Extensions (20 pts)
