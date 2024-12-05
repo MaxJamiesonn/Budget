@@ -1,6 +1,4 @@
 package src.main.java.Budget;
-
-
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -8,39 +6,30 @@ import java.awt.*;
 import java.util.Stack;
 
 public class BudgetBase extends JPanel {
-
     public JFrame topLevelFrame;
     public GridBagConstraints layoutConstraints = new GridBagConstraints();
-
     public JButton undoButton;
     public JButton redoButton;
     public JButton exitButton;
-
+    private Timer saveStateTimer;
     public JTextField wagesField;
     public JComboBox<String> wagesComboBox;
-
     public JTextField loansField;
     public JComboBox<String> loansComboBox;
-
     public JTextField investmentsField;
     public JComboBox<String> investmentsComboBox;
-
     public JTextField foodField;
     public JComboBox<String> foodComboBox;
-
     public JTextField rentField;
     public JComboBox<String> rentComboBox;
-
     public JTextField insuranceField;
     public JComboBox<String> insuranceComboBox;
-
     public JTextField totalIncomeField;
     public JTextField totalSpendingField;
     public JTextField totalDifferenceField;
-
-    public Stack<State> undoStack; // Tracks undo states
-    public Stack<State> redoStack; // Tracks redo states
-    public boolean isPerformingUndoRedo = false; // Tracks if undo/redo is in progress
+    public Stack<State> undoStack;
+    public Stack<State> redoStack;
+    public boolean isPerformingUndoRedo = false;
 
     public BudgetBase(JFrame frame) {
         this.topLevelFrame = frame;
@@ -48,7 +37,8 @@ public class BudgetBase extends JPanel {
         undoStack = new Stack<>();
         redoStack = new Stack<>();
         initComponents();
-        saveState(); // Save the initial state
+        setDefaultValues();
+        saveState();
     }
 
     public void initComponents() {
@@ -117,46 +107,59 @@ public class BudgetBase extends JPanel {
         addComponent(comboBox, row, colOffset + 2);
         comboBoxSetter.accept(comboBox);
 
+        
         textField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                saveState();
-                calculateAll();
+                handleTextChange();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                saveState();
-                calculateAll();
+                handleTextChange();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                saveState();
-                calculateAll();
+                handleTextChange();
+            }
+
+            private void handleTextChange() {
+                if (saveStateTimer != null && saveStateTimer.isRunning()) {
+                    saveStateTimer.restart(); 
+                } else {
+                    saveStateTimer = new Timer(500, event -> {
+                        saveState(); 
+                        calculateAll(); 
+                    });
+                    saveStateTimer.setRepeats(false); 
+                    saveStateTimer.start();
+                }
             }
         });
 
         comboBox.addActionListener(e -> {
             saveState();
             calculateAll();
-        });
-
-        return textField;
-    }
-
-     void initListeners() {
-        undoButton.addActionListener(e -> {
-            System.out.println("[DEBUG] Undo button pressed");
-            undo();
-            debugStacks();
-        });
-        redoButton.addActionListener(e -> {
-            System.out.println("[DEBUG] Redo button pressed");
-            redo();
-            debugStacks();
-        });
-        exitButton.addActionListener(e -> System.exit(0));
+        });return textField;}
+    
+    
+    public void setDefaultValues() {
+        wagesField.setText("0");
+        loansField.setText("0");
+        investmentsField.setText("0");
+        foodField.setText("0");
+        rentField.setText("0");
+        insuranceField.setText("0");
+        totalIncomeField.setText("0.00");
+        totalSpendingField.setText("0.00");
+        totalDifferenceField.setText("0.00");
+        wagesComboBox.setSelectedItem("Per Year");
+        loansComboBox.setSelectedItem("Per Year");
+        investmentsComboBox.setSelectedItem("Per Year");
+        foodComboBox.setSelectedItem("Per Year");
+        rentComboBox.setSelectedItem("Per Year");
+        insuranceComboBox.setSelectedItem("Per Year");
     }
 
     public void addComponent(Component component, int gridrow, int gridcol) {
@@ -167,63 +170,18 @@ public class BudgetBase extends JPanel {
     }
 
     public void saveState() {
-        if (isPerformingUndoRedo) return; // Prevent saving state during undo/redo operations
+        if (isPerformingUndoRedo) return; 
         State currentState = new State(this);
-
-        // Save to undo stack only if it's a new state
         if (undoStack.isEmpty() || !undoStack.peek().equals(currentState)) {
-            undoStack.push(currentState);
-            redoStack.clear(); // Clear redo stack on a new action
-        }
-
-        System.out.println("[DEBUG] State saved to undo stack");
-        debugStacks();
-    }
-
-    public void undo() {
-        if (undoStack.size() <= 1) {
-            JOptionPane.showMessageDialog(this, "No more undo steps available.");
-            return;
-        }
-
-        isPerformingUndoRedo = true; // Mark undo in progress
-        redoStack.push(undoStack.pop()); // Move the current state to redo stack
-        State previousState = undoStack.peek(); // Peek the previous state
-        previousState.restore(this);
-        calculateAll();
-        isPerformingUndoRedo = false; // Undo complete
-
-        System.out.println("[DEBUG] Undo performed");
-        debugStacks();
-    }
-
-    public void redo() {
-        if (redoStack.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No more redo steps available.");
-            return;
-        }
-
-        isPerformingUndoRedo = true; // Mark redo in progress
-        State nextState = redoStack.pop(); // Get the next state from redo stack
-        undoStack.push(nextState); // Save it back to the undo stack
-        nextState.restore(this);
-        calculateAll();
-        isPerformingUndoRedo = false; // Redo complete
-
-        System.out.println("[DEBUG] Redo performed");
-        debugStacks();
-    }
-
-    public void debugStacks() {
-        System.out.println("==== [DEBUG] Undo Stack ====");
-        for (int i = undoStack.size() - 1; i >= 0; i--) {
-            System.out.println(undoStack.get(i));
-        }
-        System.out.println("==== [DEBUG] Redo Stack ====");
-        for (int i = redoStack.size() - 1; i >= 0; i--) {
-            System.out.println(redoStack.get(i));
+        undoStack.push(currentState);
+        redoStack.clear(); 
+        System.out.println("state saved - Wages: " + wagesField.getText());
         }
     }
+    
+    
+    
+    
 
     public void calculateAll() {
         boolean[] errorFlag = {false};
@@ -236,10 +194,13 @@ public class BudgetBase extends JPanel {
         double wages = convertToYearly(getFieldValue(wagesField, errorFlag), wagesComboBox);
         double loans = convertToYearly(getFieldValue(loansField, errorFlag), loansComboBox);
         double investments = convertToYearly(getFieldValue(investmentsField, errorFlag), investmentsComboBox);
+    
         double totalIncome = wages + loans + investments;
+        System.out.println("total Income: " + totalIncome); 
         totalIncomeField.setText(String.format("%.2f", totalIncome));
         return totalIncome;
     }
+    
 
     public double calculateTotalSpending(boolean[] errorFlag) {
         double food = convertToYearly(getFieldValue(foodField, errorFlag), foodComboBox);
@@ -261,11 +222,10 @@ public class BudgetBase extends JPanel {
             return Double.parseDouble(field.getText().isEmpty() ? "0" : field.getText());
         } catch (NumberFormatException e) {
             errorFlag[0] = true;
-            field.setText("0");
-            return 0;
-        }
-    }
-
+            JOptionPane.showMessageDialog(null, "Invalid input in field: " + field.getName());
+            field.setText("0"); 
+            calculateAll(); 
+            return 0;}}
     public double convertToYearly(double value, JComboBox<String> comboBox) {
         if (comboBox == null) return value;
         switch ((String) comboBox.getSelectedItem()) {
@@ -274,14 +234,13 @@ public class BudgetBase extends JPanel {
             case "Per Month":
                 return value * 12;
             default:
-                return value;
-        }
-    }
-
+                return value;}}
+        
+    
     public static class State {
         public final String wages, loans, investments, food, rent, insurance;
         public final String wagesFreq, loansFreq, investmentsFreq, foodFreq, rentFreq, insuranceFreq;
-
+    
         State(BudgetBase base) {
             this.wages = base.wagesField.getText();
             this.loans = base.loansField.getText();
@@ -289,6 +248,7 @@ public class BudgetBase extends JPanel {
             this.food = base.foodField.getText();
             this.rent = base.rentField.getText();
             this.insurance = base.insuranceField.getText();
+    
             this.wagesFreq = (String) base.wagesComboBox.getSelectedItem();
             this.loansFreq = (String) base.loansComboBox.getSelectedItem();
             this.investmentsFreq = (String) base.investmentsComboBox.getSelectedItem();
@@ -296,99 +256,61 @@ public class BudgetBase extends JPanel {
             this.rentFreq = (String) base.rentComboBox.getSelectedItem();
             this.insuranceFreq = (String) base.insuranceComboBox.getSelectedItem();
         }
+    
+        boolean equals(State other) {
+            return wages.equals(other.wages) && loans.equals(other.loans) &&
+                   investments.equals(other.investments) && food.equals(other.food) &&
+                   rent.equals(other.rent) && insurance.equals(other.insurance) &&
+                   wagesFreq.equals(other.wagesFreq) && loansFreq.equals(other.loansFreq) &&
+                   investmentsFreq.equals(other.investmentsFreq) && foodFreq.equals(other.foodFreq) &&
+                   rentFreq.equals(other.rentFreq) && insuranceFreq.equals(other.insuranceFreq);}}
+        
+    public void undo() {
+        if (!undoStack.isEmpty()) {
+            System.out.println("undo called - current undo stack: " + undoStack);
+            isPerformingUndoRedo = true;
+            redoStack.push(undoStack.pop());
+            if (!undoStack.isEmpty()) {
+                applyState(undoStack.peek());}
+            isPerformingUndoRedo = false;}}
 
-        void restore(BudgetBase base) {
-            base.wagesField.setText(wages);
-            base.loansField.setText(loans);
-            base.investmentsField.setText(investments);
-            base.foodField.setText(food);
-            base.rentField.setText(rent);
-            base.insuranceField.setText(insurance);
-            base.wagesComboBox.setSelectedItem(wagesFreq);
-            base.loansComboBox.setSelectedItem(loansFreq);
-            base.investmentsComboBox.setSelectedItem(investmentsFreq);
-            base.foodComboBox.setSelectedItem(foodFreq);
-            base.rentComboBox.setSelectedItem(rentFreq);
-            base.insuranceComboBox.setSelectedItem(insuranceFreq);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof State)) return false;
-            State other = (State) obj;
-            return wages.equals(other.wages) &&
-                   loans.equals(other.loans) &&
-                   investments.equals(other.investments) &&
-                   food.equals(other.food) &&
-                   rent.equals(other.rent) &&
-                   insurance.equals(other.insurance) &&
-                   wagesFreq.equals(other.wagesFreq) &&
-                   loansFreq.equals(other.loansFreq) &&
-                   investmentsFreq.equals(other.investmentsFreq) &&
-                   foodFreq.equals(other.foodFreq) &&
-                   rentFreq.equals(other.rentFreq) &&
-                   insuranceFreq.equals(other.insuranceFreq);
-        }
-
-        @Override
-        public String toString() {
-            return "State{" +
-                    "wages='" + wages + '\'' +
-                    ", loans='" + loans + '\'' +
-                    ", investments='" + investments + '\'' +
-                    ", food='" + food + '\'' +
-                    ", rent='" + rent + '\'' +
-                    ", insurance='" + insurance + '\'' +
-                    '}';
-        }
+    public void redo() {
+        if (!redoStack.isEmpty()) {
+            isPerformingUndoRedo = true;
+            State nextState = redoStack.pop();
+            undoStack.push(nextState);
+            applyState(nextState);
+            isPerformingUndoRedo = false;}}
+        
+    public void applyState(State state) {
+        wagesField.setText(state.wages);
+        loansField.setText(state.loans);
+        investmentsField.setText(state.investments);
+        foodField.setText(state.food);
+        rentField.setText(state.rent);
+        insuranceField.setText(state.insurance);
+    
+        wagesComboBox.setSelectedItem(state.wagesFreq);
+        loansComboBox.setSelectedItem(state.loansFreq);
+        investmentsComboBox.setSelectedItem(state.investmentsFreq);
+        foodComboBox.setSelectedItem(state.foodFreq);
+        rentComboBox.setSelectedItem(state.rentFreq);
+        insuranceComboBox.setSelectedItem(state.insuranceFreq);
+    
+        calculateAll();}
+    
+    private void initListeners() {
+        undoButton.addActionListener(e -> undo());
+        redoButton.addActionListener(e -> redo());
+        exitButton.addActionListener(e -> System.exit(0));
     }
 
- // Getters for testing
-// Add getter methods to expose public fields for testing
-public JTextField getWagesField() {
-    return wagesField;
-}
-
-public JTextField getLoansField() {
-    return loansField;
-}
-
-public JTextField getInvestmentsField() {
-    return investmentsField;
-}
-
-public JTextField getFoodField() {
-    return foodField;
-}
-
-public JTextField getRentField() {
-    return rentField;
-}
-
-public JTextField getInsuranceField() {
-    return insuranceField;
-}
-
-public JTextField getTotalIncomeField() {
-    return totalIncomeField;
-}
-
-public JTextField getTotalSpendingField() {
-    return totalSpendingField;
-}
-
-public JTextField getTotalDifferenceField() {
-    return totalDifferenceField;
-}
-
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Budget Calculator");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setContentPane(new BudgetBase(frame));
-            frame.pack();
-            frame.setVisible(true);
-        });
-    }
+public static void main(String[] args) {
+    SwingUtilities.invokeLater(() -> {
+        JFrame frame = new JFrame("Budget Manager");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setContentPane(new BudgetBase(frame));
+        frame.pack();
+        frame.setVisible(true);
+    });}
 }
